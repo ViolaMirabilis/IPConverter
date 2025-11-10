@@ -7,7 +7,12 @@ public class InputHandler
 {
     public (IPAddress?, SubnetMask?) FormatInput(string input)
     {
-        if (!input.Contains('/'))
+        if (string.IsNullOrEmpty(input))
+        {
+            StringHelper.PrintLine(ConsoleColor.Red, "Empty input!");
+            return (null, null);
+        }
+        else if (!input.Contains('/'))
         {
             StringHelper.PrintLine(ConsoleColor.Red, "The subnet mask symbol '/' is missing!");
             return (null, null);
@@ -17,10 +22,10 @@ public class InputHandler
         //int MaskPrefix = Convert.ToInt32(AddressDetails[1]);    // Mask, e.g. 15;
         string MaskPrefix = AddressDetails[1];
 
-        byte[] IP = FormatIP(tmpIP);
-        if (!IsIPValidFormat(IP))
+        // Mask check
+        if (!int.TryParse(MaskPrefix, out _))
         {
-            Console.WriteLine("Invalid IP Address format!");
+            StringHelper.PrintLine(ConsoleColor.Red, "Invalid Subnet Mask format!");
             return (null, null);
         }
 
@@ -29,7 +34,16 @@ public class InputHandler
             Console.WriteLine("Invalid Subnet Mask format!");
             return (null, null);
         }
+
         byte[] Mask = FormatMask(Convert.ToInt32(MaskPrefix));
+        
+        // IP Check
+        byte[] IP = FormatIP(tmpIP);
+        /*if (IP == null)
+        {
+            return (null, null);
+        }*/
+
 
         IPAddress address = new IPAddress(IP);
         SubnetMask mask = new SubnetMask(Convert.ToInt32(MaskPrefix), Mask);
@@ -41,31 +55,41 @@ public class InputHandler
     {
         string[] TmpOctets = input.Split('.');
         
-        try
+        if (TmpOctets.Length != 4)
         {
-            byte[] Octets = new byte[4];
-            for (int i = 0; i < TmpOctets.Length; i++)
-            {
-                if (TmpOctets[i] != null)
-                {
-                    Octets[i] = Convert.ToByte(TmpOctets[i]);
-                }
-                else
-                {
-                    Octets[i] = 0;
-                }
+            StringHelper.Print(ConsoleColor.Red, "Invalid IP Address format!");
+            return null;
+        }
 
+        byte[] Octets = new byte[4];        // creates 4 IP octets
+
+        for (int i = 0; i < TmpOctets.Length; i++)
+        {
+            if (!int.TryParse(TmpOctets[i], out int value))     // if input cannot be parsed
+            {
+                StringHelper.PrintLine(ConsoleColor.Red, "Invalid IP format!");
+                return null;
             }
 
-            return Octets;
+            if (value < 0 || value > 255)                       // if input is beyond acceptable range
+            {
+                StringHelper.PrintLine(ConsoleColor.Red, "Invalid IP format!");
+                return null;
+            }
+            if (TmpOctets[i] != null)
+            {
+                Octets[i] = Convert.ToByte(TmpOctets[i]);
+            }
+            else
+            {
+                Octets[i] = 0;
+            }
+
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Invalid IP Address format!");
-        }
-        return null;
-        
+
+        return Octets;
     }
+
     public byte[] FormatMask(int prefix)
     {
         byte[] Mask = new byte[4];
@@ -96,14 +120,6 @@ public class InputHandler
         }
         return null;
         
-    }
-    public bool IsIPValidFormat(byte[] IP)
-    {
-        foreach (byte b in IP)
-        {
-            if (b > 255 || b < 0) return false;
-        }
-        return true;
     }
 
     public bool IsMaskValidFormat(int input)

@@ -30,7 +30,7 @@
                 string? input = Console.ReadLine();
 
                 var address = handler.FormatInput(input);
-                if (address.Item1 != null)
+                if (address.Item1 != null && address.Item2 != null)
                 {
                     Console.WriteLine($"Your IP address: {string.Join('.', address.Item1.Octets)}");
                     Console.WriteLine($"Subnet Mask prefix length: {address.Item2.Prefix.ToString()}");
