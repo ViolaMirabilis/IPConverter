@@ -4,21 +4,50 @@
     {
         static void Main(string[] args)
         {
+            bool IsRunning = true;
             InputHandler handler = new InputHandler();
-            Console.Write("Wprowadź adres IP: ");
-            string? input = Console.ReadLine();
+            while (IsRunning)
+            {
+                Console.WriteLine("Enter your IPv4 address and Subnet Mask prefix in a proper format.");
+                StringHelper.Print(ConsoleColor.DarkYellow, "127.0.0.1");
+                Console.Write("/");
+                StringHelper.Print(ConsoleColor.Red, "16");
 
-            var address = handler.FormatInput(input);
-            if (address.Item1 != null)
-            {
-                Console.WriteLine($"Twój adres IP: {string.Join('.', address.Item1.Octets)}");
-                Console.WriteLine($"Dlugosc twojej maski: {address.Item2.Prefix.ToString()}");
-                Console.WriteLine($"Twoja maska: {string.Join('.', address.Item2.Octets)}");
+                Console.WriteLine();
+
+                StringHelper.Print(ConsoleColor.DarkYellow, "■");
+                Console.Write(" --> IPv4 Addres separated by .");
+
+                Console.WriteLine();
+
+                StringHelper.Print(ConsoleColor.Red, "■");
+                Console.WriteLine(" --> Subnet Mask Prefix length");
+
+                Console.Write("Your full IP Address: ");
+
+
+
+                string? input = Console.ReadLine();
+
+                var address = handler.FormatInput(input);
+                if (address.Item1 != null)
+                {
+                    Console.WriteLine($"Your IP address: {string.Join('.', address.Item1.Octets)}");
+                    Console.WriteLine($"Subnet Mask prefix length: {address.Item2.Prefix.ToString()}");
+                    Console.WriteLine($"Subnet Mask value: {string.Join('.', address.Item2.Octets)}");
+                }
+                else
+                {
+                    Console.WriteLine("Press ENTER to continue");
+                    Console.ReadLine();
+                    Console.Clear();
+                    continue;
+                }
+
+                    break;
             }
-            else
-            {
-                Console.WriteLine("BŁĄD!");
-            }
+            
+            
             
 
 
